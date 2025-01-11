@@ -1,2 +1,2 @@
-inputs@{ self, ... }:
-self.lib.importAllNamedExceptWithArg ./. [ "default.nix" ] inputs
+inputs @ {self, ...}:
+self.lib.importAllNamedExceptWithArg ./. ["default.nix"] inputs

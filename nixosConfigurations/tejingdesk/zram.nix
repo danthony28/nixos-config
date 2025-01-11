@@ -1,4 +1,4 @@
 {
-  zramSwap.enable = true;
-  zramSwap.memoryPercent = 150;
+	zramSwap.enable = true;
+	zramSwap.memoryPercent = 150;
 }

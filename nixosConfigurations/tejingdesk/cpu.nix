@@ -1,7 +1,7 @@
 {
-  boot.kernelModules = [ "kvm-intel" ];
+	boot.kernelModules = ["kvm-intel"];
 
-  powerManagement.cpuFreqGovernor = "performance";
+	powerManagement.cpuFreqGovernor = "performance";
 
-  nixpkgs.hostPlatform = "x86_64-linux";
+	nixpkgs.hostPlatform = "x86_64-linux";
 }

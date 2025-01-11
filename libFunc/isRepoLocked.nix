@@ -1,8 +1,7 @@
-{ my, ... }:
-let
-  inherit (builtins) isBool;
-  inherit (my.lib) repoLockedTestResult;
+{my, ...}: let
+	inherit (builtins) isBool;
+	inherit (my.lib) repoLockedTestResult;
 
-  isRepoLocked = import repoLockedTestResult;
-
-in assert isBool isRepoLocked; isRepoLocked
+	isRepoLocked = import repoLockedTestResult;
+in
+	assert isBool isRepoLocked; isRepoLocked

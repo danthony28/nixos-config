@@ -1,3 +1,3 @@
 {
-  system.stateVersion = "17.09";
+	system.stateVersion = "17.09";
 }
