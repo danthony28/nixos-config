@@ -9,14 +9,19 @@
 	flakesClosure = flakes:
 		if flakes == []
 		then []
-		else
-			unique (flakes
-				++ flakesClosure (concatMap
-					(flake:
-							if flake ? inputs
-							then attrValues flake.inputs
-							else [])
-					flakes));
-	flakeClosureRef = flake: pkgs.writeText "flake-closure" (concatStringsSep "\n" (flakesClosure [flake]) + "\n");
+		else flakes
+			++ flakesClosure ( flakes
+				|> concatMap ( flake:
+					if flake ? inputs
+					then flake.inputs |> attrValues
+					else []
+				)
+			)
+			|> unique
+	;
+	flakeClosureRef = flake:
+		pkgs.writeText "flake-closure"
+		( ( flakesClosure [flake] |> concatStringsSep "\n" ) + "\n" )
+	;
 in
 	flakeClosureRef

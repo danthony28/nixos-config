@@ -7,8 +7,19 @@
 	inherit (pkgs) resholve;
 
 	mkShellScript = name: arg: content:
-		assert isList arg || isAttrs arg;
-		assert isString content || isPath content; let
+		assert
+			arg
+			|> isList
+			|| arg
+			|> isAttrs
+		;
+		assert
+			content
+			|> isString
+			|| content
+			|> isPath
+		;
+		let
 			finalArg =
 				{
 					interpreter = "${pkgs.bash}/bin/bash";
@@ -24,13 +35,18 @@
 					if isAttrs arg
 					then arg
 					else {}
-				);
+				)
+			;
 			finalContent =
-				if isPath content
+				if content |> isPath
 				then readFile content
-				else content;
+				else content
+			;
 		in rec {
-			pkg = resholve.writeScriptBin name finalArg finalContent;
+			pkg =
+				finalContent
+				|> resholve.writeScriptBin name finalArg
+			;
 			outPath = "${pkg}/bin/${name}";
 		};
 in

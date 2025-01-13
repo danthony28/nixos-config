@@ -8,15 +8,27 @@ in
 	# attrset
 	let
 		contents =
-			if isPath src
+			if src |> isPath
 			then readFile src
 			else src;
-		isValid = s:
 		# the string is a sequence of dot-separated valid nix identifiers.
-			isList (builtins.match "([a-zA-Z_][a-zA-Z0-9_'-]*(.[a-zA-Z_][a-zA-Z0-9_'-]*)*)" s)
-			&&
+		isValid = s: s
+			|> builtins.match "([a-zA-Z_][a-zA-Z0-9_'-]*(.[a-zA-Z_][a-zA-Z0-9_'-]*)*)"
+			|> isList
 			# the path actually exists in subs
-			hasAttrByPath (splitString "." s) subs;
-		needed = filter isValid (splitString "@" contents);
+			&& subs
+			|> hasAttrByPath ( s |> splitString "." )
+		;
+		needed =
+			contents
+			|> splitString "@"
+			|> filter isValid
+		;
 	in
-		replaceStrings (map (s: "@" + s + "@") needed) (map (s: toString (getAttrFromPath (splitString "." s) subs)) needed) contents
+		contents
+		|> replaceStrings
+		( needed |> map ( s: "@" + s + "@" ) )
+		( needed |> map ( s: subs
+			|> getAttrFromPath ( s |> splitString "." )
+			|> toString
+		) )

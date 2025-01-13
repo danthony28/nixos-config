@@ -16,7 +16,7 @@
 		nameValuePair
 		splitString
 		removePrefix
-		;
+	;
 
 	flakeNixInputs = (import (inputs.self + "/flake.nix")).inputs;
 
@@ -25,7 +25,10 @@
 		then removeAttrs spec ["url"] // parseFlakeRef spec.url
 		else spec;
 in {
-	config._module.args.inputSpecs = mapAttrs (_: canonicalizeInputSpec) flakeNixInputs;
+	config._module.args.inputSpecs =
+		flakeNixInputs
+		|> mapAttrs (_: canonicalizeInputSpec)
+	;
 
 	config._module.args.pkgsUnstable =
 		import inputs.nixpkgs-unstable {

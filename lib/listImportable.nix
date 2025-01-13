@@ -10,9 +10,19 @@ in
 	dir:
 	# list importable filenames in the directory 'dir',
 	let
-		conditionTable = n: {
-			regular = hasSuffix ".nix" n;
-			directory = pathExists (dir + "/${n}/default.nix");
-		};
+		conditionTable = n:
+			{
+				regular = n |> hasSuffix ".nix";
+				directory =
+					dir + "/${n}/default.nix"
+					|> pathExists
+				;
+			}
+		;
 	in
-		attrNames (filterAttrs (n: v: getAttrWithDefault false v (conditionTable n)) (readDir dir))
+		readDir dir
+		|> filterAttrs ( n: v:
+			conditionTable n
+			|> getAttrWithDefault false v
+		)
+		|> attrNames

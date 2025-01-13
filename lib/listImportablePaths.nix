@@ -3,4 +3,5 @@
 in
 	dir:
 	# list importable paths in the directory 'dir',
-		map (n: dir + "/${n}") (listImportable dir)
+		listImportable dir
+		|> map (n: dir + "/${n}")

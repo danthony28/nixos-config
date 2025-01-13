@@ -7,7 +7,10 @@
 
 	importSecret =
 		if my.lib.isRepoLocked
-		then default: file: trace "WARNING: Building from locked repo. Secrets will be replaced with placeholders." default
+		then default: file: default
+		|> trace ''
+			WARNING: Building from locked repo. Secrets will be replaced with placeholders.
+		''
 		else default: file: import file;
 in
 	importSecret

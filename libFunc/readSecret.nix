@@ -7,7 +7,11 @@
 
 	readSecret =
 		if my.lib.isRepoLocked
-		then default: file: trace "WARNING: Building from locked repo. Secrets will be replaced with placeholders." default
-		else default: file: readFile file;
+		then default: file: default
+			|> trace ''
+				WARNING: Building from locked repo. Secrets will be replaced with placeholders.
+			''
+		else default: file: readFile file
+	;
 in
 	readSecret

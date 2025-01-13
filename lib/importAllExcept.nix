@@ -12,4 +12,9 @@ in
 	# named in the list of strings 'except'.  returns an attrset of the
 	# import results named by the files (without the .nix suffix) or
 	# directories they came from.
-		listToAttrs (map (n: nameValuePair (removeSuffix ".nix" n) (import (dir + "/${n}"))) (listImportableExcept dir except))
+		listImportableExcept dir except
+		|> map ( n: nameValuePair
+			(n |> removeSuffix ".nix") # name
+			(import (dir + "/${n}")) # value
+		)
+		|> listToAttrs

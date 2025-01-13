@@ -17,31 +17,64 @@
 		extra =
 			if flake ? outputs
 			then {}
-			else {flake = false;};
+			else {flake = false;}
+		;
 	in
 		{
-			inputs = mapAttrs (_: cleanNode) (flake.inputs or {});
+			inputs =
+				flake.inputs or {}
+				|> mapAttrs (_: cleanNode)
+			;
 			locked = spec;
 			original = spec;
 		}
 		// extra;
 	flattenNode = prefix: node: let
-		ids = mapAttrs (n: v: (flattenNode (prefix + "-" + n) v).name) node.inputs;
-		nod = concatMap (x: x) (attrValues (mapAttrs (n: v: (flattenNode (prefix + "-" + n) v).value) node.inputs));
+		ids =
+			node.inputs
+			|> mapAttrs ( n: v: ( v
+				|> flattenNode (prefix + "-" + n)
+			).name )
+		;
+		nod =
+			node.inputs
+			|> mapAttrs ( n: v: ( v
+				|> flattenNode (prefix + "-" + n)
+			).value )
+			|> attrValues
+			|> concatMap (x: x)
+			## TODO: Why not just `builtins.concatLists`?
+		;
 	in
-		nameValuePair prefix ([(nameValuePair prefix (node // {inputs = ids;}))] ++ nod);
+		nameValuePair
+			prefix # name
+			(
+				[ ( nameValuePair
+					prefix # name
+					(node // {inputs = ids;}) # value
+				) ]
+				++ nod
+			) # value
+		;
 in
 	flakeInputs: let
 		inputsCode = "{${concatStrings (
 				mapAttrsToList (n: v: "${escapeNixIdentifier n}.url=${escapeNixString "path:${v.sourceInfo.outPath}?narHash=${v.sourceInfo.narHash}"};") flakeInputs
 			)}}";
-		rootNode = {inputs = mapAttrs (_: cleanNode) flakeInputs;};
-		lockJSON =
-			toJSON {
-				version = 7;
-				root = "self";
-				nodes = listToAttrs (flattenNode "self" rootNode).value;
-			};
+		rootNode = {
+			inputs =
+				flakeInputs
+				|> mapAttrs (_: cleanNode)
+			;
+		};
+		lockJSON = toJSON {
+			version = 7;
+			root = "self";
+			nodes =
+				(flattenNode "self" rootNode).value
+				|> listToAttrs
+			;
+		};
 	in
 		outputsCode:
 			runCommand "source" {} ''

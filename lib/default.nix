@@ -17,13 +17,26 @@ inputs @ {nixpkgs, ...}: let
 			inherit inputs;
 			inherit (nixpkgs) lib;
 			my.lib = initialLib;
-		};
+		}
+	;
 
 	# bootstrap lib containing only 'bootstrapFunctions'
-	initialLib = listToAttrs (map (n: nameValuePair n (import (./. + "/${n}.nix") initialArgs)) bootstrapFunctions);
+	initialLib =
+		bootstrapFunctions
+		|> map ( n: nameValuePair
+			n
+			(import (./. + "/${n}.nix") initialArgs)
+		)
+		|> listToAttrs
+	;
 
 	# arguments to files for externally visible 'lib'
-	finalArgs = initialArgs // {my.lib = finalLib;};
+	finalArgs =
+		initialArgs
+		// {
+			my.lib = finalLib;
+		}
+	;
 
 	# externally visible 'lib'
 	finalLib = initialLib.importAllExceptWithArg ./. ["default.nix"] finalArgs;
